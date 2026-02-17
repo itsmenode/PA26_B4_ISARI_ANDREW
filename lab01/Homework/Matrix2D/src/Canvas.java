@@ -27,21 +27,24 @@ public class Canvas {
         System.out.println("\n\n\n\n");
     }
 
-    public void exampleRectangle() {
-        setBackground(255);
+    public void Rectangle(int backgroundColor, int shapeColor) {
+        setBackground(backgroundColor);
         for (int i = 0; i < size; i++) {
-            matrix[0][i] = 0;
-            matrix[size - 1][i] = 0;
+            matrix[0][i] = shapeColor;
+            matrix[size - 1][i] = shapeColor;
         }
         for (int i = 1; i < size - 1; i++) {
-            matrix[i][0] = 0;
-            matrix[i][size - 1] = 0;
+            matrix[i][0] = shapeColor;
+            matrix[i][size - 1] = shapeColor;
         }
-        printCanvas();
     }
 
-    public void exampleCircle() {
-        setBackground(0);
+    public void Rectangle() {
+        Rectangle(0, 255);
+    }
+
+    public void Circle(int backgroundColor, int shapeColor) {
+        setBackground(backgroundColor);
 
         double center = (size - 1) / 2.0;
         double radius = (size - 1) / 2.0;
@@ -51,10 +54,49 @@ public class Canvas {
                 double distance = Math.sqrt(Math.pow(i - center, 2) + Math.pow(j - center, 2));
 
                 if (Math.abs(distance - radius) < 0.6) {
-                    matrix[i][j] = 255;
+                    matrix[i][j] = shapeColor;
                 }
             }
         }
-        printCanvas();
+    }
+
+    public void Circle() {
+        Circle(0, 255);
+    }
+
+    public int minimization(int number) {
+        while (number > 10) {
+            int sum = 0;
+            while (number != 0) {
+                sum = sum + number % 10;
+                number = number / 10;
+            }
+            number = sum;
+        }
+
+        return number;
+    }
+
+    public char toUnicode(int code) {
+        return (char) code;
+    }
+
+    public void convertMatrix(){
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                int code = minimization(matrix[i][j]) + 0x2580;
+                matrixUnicode[i][j] = String.valueOf(toUnicode(code));
+            }
+        }
+    }
+
+    public void printConvert() {
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                System.out.print(matrixUnicode[i][j]);
+            }
+            System.out.print("\n");
+        }
+        System.out.println("\n\n\n\n");
     }
 }
