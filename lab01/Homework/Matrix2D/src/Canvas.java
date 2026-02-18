@@ -20,7 +20,7 @@ public class Canvas {
     public void printCanvas() {
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
-                System.out.print(matrix[i][j] == 255 ? "255 " : " 0  ");
+                System.out.print(matrix[i][j] == 255 ? "X" : " ");
             }
             System.out.print("\n");
         }
