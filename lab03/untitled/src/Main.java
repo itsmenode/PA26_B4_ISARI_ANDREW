@@ -1,55 +1,60 @@
 import enums.jobTitle;
-import model.Company;
-import model.Person;
-import model.Profile;
+import model.*;
 import relationshipService.PersonToCompany;
 import relationshipService.PersonToPerson;
 
-void main() {
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
-    // --- Persons and Companies ---
-    Person alice = new Person("p1", "Alice");
-    Person bob = new Person("p2", "Bob");
-    Person charlie = new Person("p3", "Charlie");
+public class Main {
+    public static void main(String[] args) {
 
-    Company acme = new Company("c1", "Acme Corp");
-    Company beta = new Company("c2", "Beta Ltd");
+        // --- Persons ---
+        Person alice     = new Programmer("p1", "Alice",   LocalDate.of(1995, 3, 12), "alice@mail.com",   "Java");
+        Person bob       = new Designer  ("p2", "Bob",     LocalDate.of(1992, 7, 24), "bob@mail.com",     "https://bobdesigns.io");
+        Person charlie   = new Person    ("p3", "Charlie", LocalDate.of(1988, 11, 5), "charlie@mail.com");
 
-    // --- Person-to-Person relationships ---
-    PersonToPerson rel1 = new PersonToPerson(alice, bob, "Colleagues from university");
-    PersonToPerson rel2 = new PersonToPerson(bob, charlie, "Met at a conference");
+        // --- Companies ---
+        Company acme = new Company("c1", "Acme Corp", "Software");
+        Company beta = new Company("c2", "Beta Ltd",  "Design");
 
-    // --- Person-to-Company relationships ---
-    PersonToCompany emp1 = new PersonToCompany(alice, acme, jobTitle.Programmer);
-    PersonToCompany emp2 = new PersonToCompany(charlie, acme, jobTitle.Designer);
-    PersonToCompany emp3 = new PersonToCompany(bob, beta, jobTitle.Programmer);
+        // --- Relationships ---
+        PersonToPerson rel1 = new PersonToPerson(alice, bob,     "Colleagues from university");
+        PersonToPerson rel2 = new PersonToPerson(bob,   charlie, "Met at a conference");
 
-    // --- Mixed list sorted by name via Comparator ---
-    List<Profile> network = new ArrayList<>();
-    network.add(alice);
-    network.add(bob);
-    network.add(charlie);
-    network.add(acme);
-    network.add(beta);
+        PersonToCompany emp1 = new PersonToCompany((Person) alice, acme, jobTitle.Programmer);
+        PersonToCompany emp2 = new PersonToCompany(charlie,        acme, jobTitle.Designer);
+        PersonToCompany emp3 = new PersonToCompany((Person) bob,   beta, jobTitle.Designer);
 
-    network.sort(Comparator.comparing(Profile::getName));
+        // --- Mixed sorted list ---
+        List<Profile> network = new ArrayList<>();
+        network.add(alice);
+        network.add(bob);
+        network.add(charlie);
+        network.add(acme);
+        network.add(beta);
 
-    IO.println("=== Network (sorted by name) ===");
-    for (Profile p : network) {
-        IO.println(p.getName() + " [" + p.getProfileId() + "]");
-    }
+        network.sort(Comparator.comparing(Profile::getName));
 
-    IO.println("\n=== Person-to-Person Relationships ===");
-    for (PersonToPerson rel : List.of(rel1, rel2)) {
-        IO.println(rel.getFirstPerson().getName()
-                + " knows " + rel.getSecondPerson().getName()
-                + " -> " + rel.getContextOfRelationship());
-    }
+        System.out.println("=== Network (sorted by name) ===");
+        for (Profile p : network) {
+            System.out.println(p.getName() + " [" + p.getProfileId() + "]");
+        }
 
-    IO.println("\n=== Person-to-Company Relationships ===");
-    for (PersonToCompany emp : List.of(emp1, emp2, emp3)) {
-        IO.println(emp.getPerson().getName()
-                + " works at " + emp.getCompany().getName()
-                + " as " + emp.getPosition());
+        System.out.println("\n=== Person-to-Person Relationships ===");
+        for (PersonToPerson rel : List.of(rel1, rel2)) {
+            System.out.println(rel.getFirstPerson().getName()
+                    + " knows " + rel.getSecondPerson().getName()
+                    + " -> " + rel.getContextOfRelationship());
+        }
+
+        System.out.println("\n=== Person-to-Company Relationships ===");
+        for (PersonToCompany emp : List.of(emp1, emp2, emp3)) {
+            System.out.println(emp.getPerson().getName()
+                    + " works at " + emp.getCompany().getName()
+                    + " as " + emp.getPosition());
+        }
     }
 }

@@ -80,7 +80,6 @@ public class Road {
             case Highway -> "Highway";
             case Express -> "Express Road";
             case Country -> "Country Road";
-            default -> "[ERROR] Unknown road type, please add road type to the list [ERROR]";
         };
     }
 

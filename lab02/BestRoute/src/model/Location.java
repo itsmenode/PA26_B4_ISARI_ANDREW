@@ -119,7 +119,6 @@ public abstract sealed class Location permits City, Airport, GasStation {
             case City -> "City";
             case Airport -> "Airport";
             case GasStation -> "Gas Station";
-            default -> "[ERROR] Unknown location type, please add location [ERROR]";
         };
     }
 
