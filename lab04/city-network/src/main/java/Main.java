@@ -1,31 +1,33 @@
-import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class Main {
 
     public static void main(String[] args) {
+        City handcraftedCity = buildCity();
+        demonstrateSortedStreets(handcraftedCity);
+        demonstrateSetDeduplication(handcraftedCity);
+        demonstrateStreetQuery(handcraftedCity, 500.0, 3);
 
-        List<Intersection> intersections = Stream.of(
-                "Alpha", "Bravo", "Charlie", "Delta", "Echo",
-                "Foxtrot", "Golf", "Hotel", "India", "Juliet"
-        ).map(Intersection::new).collect(Collectors.toList());
+        System.out.println("\n========================================");
 
-        Intersection alpha   = intersections.get(0);
-        Intersection bravo   = intersections.get(1);
-        Intersection charlie = intersections.get(2);
-        Intersection delta   = intersections.get(3);
-        Intersection echo    = intersections.get(4);
-        Intersection foxtrot = intersections.get(5);
-        Intersection golf    = intersections.get(6);
-        Intersection hotel   = intersections.get(7);
-        Intersection india   = intersections.get(8);
-        Intersection juliet  = intersections.get(9);
+        City randomCity = NameGenerator.createRandom(10, 14);
+        System.out.println("\n" + randomCity);
+        demonstrateSortedStreets(randomCity);
+    }
 
-        LinkedList<Street> streets = new LinkedList<>(List.of(
+    private static City buildCity() {
+        Intersection alpha   = new Intersection("Alpha");
+        Intersection bravo   = new Intersection("Bravo");
+        Intersection charlie = new Intersection("Charlie");
+        Intersection delta   = new Intersection("Delta");
+        Intersection echo    = new Intersection("Echo");
+        Intersection foxtrot = new Intersection("Foxtrot");
+        Intersection golf    = new Intersection("Golf");
+        Intersection hotel   = new Intersection("Hotel");
+        Intersection india   = new Intersection("India");
+        Intersection juliet  = new Intersection("Juliet");
+
+        return new City("Testville", List.of(
                 new Street("Sunset Blvd",    820.0, alpha,   bravo),
                 new Street("Oak Avenue",     340.0, bravo,   charlie),
                 new Street("Maple Drive",   1150.0, charlie, delta),
@@ -41,23 +43,35 @@ public class Main {
                 new Street("Valley Road",    520.0, echo,    hotel),
                 new Street("North Ave",      760.0, bravo,   juliet)
         ));
+    }
 
-        System.out.println("=== Streets sorted by length (lambda comparator) ===");
-        streets.sort((s1, s2) -> Double.compare(s1.getLength(), s2.getLength()));
-        streets.forEach(System.out::println);
+    private static void demonstrateSortedStreets(City city) {
+        System.out.println("\n=== Streets sorted by length ===");
+        city.getStreetsSortedByLength().forEach(System.out::println);
+    }
 
-        System.out.println("\n=== Intersections (HashSet -- duplicate verification) ===");
-        Set<Intersection> intersectionSet = new HashSet<>(intersections);
-        System.out.println("Original list size : " + intersections.size());
-        System.out.println("HashSet size before duplicate insertion: " + intersectionSet.size());
+    private static void demonstrateSetDeduplication(City city) {
+        System.out.println("\n=== Intersections -- HashSet duplicate verification ===");
+        System.out.println("Set size before: " + city.getIntersections().size());
 
-        boolean added = intersectionSet.add(new Intersection("Alpha"));
-        System.out.println("Attempted to add duplicate Intersection(Alpha) -- added: " + added);
-        System.out.println("HashSet size after duplicate insertion : " + intersectionSet.size());
+        boolean added = city.getIntersections().add(new Intersection("Alpha"));
+        System.out.println("Added duplicate Intersection(Alpha): " + added);
+        System.out.println("Set size after:  " + city.getIntersections().size());
 
         System.out.println("\nIntersections in set:");
-        intersectionSet.stream()
-                .sorted()
-                .forEach(System.out::println);
+        city.getIntersections().stream().sorted().forEach(System.out::println);
+    }
+
+    private static void demonstrateStreetQuery(City city, double minLength, int minDegree) {
+        System.out.println("\n=== Streets longer than " + minLength + " m with at least one intersection of degree >= " + minDegree + " ===");
+
+        System.out.println("\nIntersection degrees:");
+        city.getIntersectionDegrees().entrySet().stream()
+                .sorted(java.util.Map.Entry.comparingByKey())
+                .forEach(e -> System.out.println("  " + e.getKey() + " -> degree " + e.getValue()));
+
+        List<Street> result = city.getStreetsLongerThanWithMinDegree(minLength, minDegree);
+        System.out.println("\nMatching streets (" + result.size() + "):");
+        result.forEach(System.out::println);
     }
 }

@@ -1,37 +1,19 @@
-import java.util.Objects;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
 
+@Getter
+@AllArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@ToString(includeFieldNames = false)
 public class Intersection implements Comparable<Intersection> {
 
-    private final String name;
-
-    public Intersection(String name) {
-        this.name = name;
-    }
-
-    public String getName() {
-        return name;
-    }
+    @EqualsAndHashCode.Include
+    private String name;
 
     @Override
     public int compareTo(Intersection other) {
         return this.name.compareTo(other.name);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Intersection)) return false;
-        Intersection that = (Intersection) o;
-        return Objects.equals(name, that.name);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(name);
-    }
-
-    @Override
-    public String toString() {
-        return "Intersection(" + name + ")";
     }
 }
