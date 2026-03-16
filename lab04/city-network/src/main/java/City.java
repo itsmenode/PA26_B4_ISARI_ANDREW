@@ -18,10 +18,7 @@ public class City {
     public City(String name, List<Street> streets) {
         this.name = name;
         this.streets = new LinkedList<>(streets);
-        this.intersections = Stream.concat(
-                streets.stream().map(Street::getStart),
-                streets.stream().map(Street::getEnd)
-        ).collect(Collectors.toCollection(HashSet::new));
+        this.intersections = Stream.concat(streets.stream().map(Street::getStart), streets.stream().map(Street::getEnd)).collect(Collectors.toCollection(HashSet::new));
     }
 
     public Map<Intersection, Long> getIntersectionDegrees() {

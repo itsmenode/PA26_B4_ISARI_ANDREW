@@ -1,5 +1,6 @@
 package models;
 
+import enums.ResourceType;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,7 +9,7 @@ import lombok.Setter;
 @Setter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 
-public abstract class BibliographicReference {
+public class BibliographicReferences {
     @EqualsAndHashCode.Include
     private String id;
 
@@ -17,12 +18,15 @@ public abstract class BibliographicReference {
     private int year;
     private String author;
 
-    public BibliographicReference(String id, String title, String location, int year, String author) {
+    private ResourceType type;
+
+    public BibliographicReferences(String id, String title, String location, int year, String author, ResourceType type) {
         this.id = id;
         this.title = title;
         this.location = location;
         this.year = year;
         this.author = author;
+        this.type = type;
     }
 
     @Override
