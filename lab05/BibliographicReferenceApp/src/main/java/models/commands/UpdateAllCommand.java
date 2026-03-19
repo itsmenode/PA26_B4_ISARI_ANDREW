@@ -1,8 +1,11 @@
 package models.commands;
 
 import interfaces.CommandOperation;
+import lombok.AllArgsConstructor;
 import models.BibliographicReferences;
 import models.RepositoryControl;
+
+@AllArgsConstructor
 
 public class UpdateAllCommand implements CommandOperation {
     private RepositoryControl catalog;
