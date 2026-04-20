@@ -4,10 +4,7 @@ import com.opencsv.CSVReaderHeaderAware;
 import com.opencsv.exceptions.CsvValidationException;
 import db.Database;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -40,7 +37,7 @@ public class CsvImporter {
             throw new IOException("CSV not found at filesystem path or classpath: " + pathOrResource);
         }
         System.out.println("Reading CSV from classpath: " + resource);
-        return new InputStreamReader(in, StandardCharsets.UTF_8);
+        return new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
     }
 
     private int importFrom(Reader reader) throws SQLException, IOException, CsvValidationException {
