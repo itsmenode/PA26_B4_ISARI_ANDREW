@@ -1,9 +1,15 @@
-import dao.*;
+import algo.UnrelatedMoviesPartitioner;
+import dao.MovieDAO;
+import dao.MovieListDAO;
 import db.Database;
-import model.*;
+import db.MigrationRunner;
+import io.CsvImporter;
+import model.Movie;
+import model.MovieList;
 import report.ReportGenerator;
 
-import java.time.LocalDate;
+import java.io.File;
+import java.net.URL;
 import java.util.List;
 
 
@@ -11,64 +17,47 @@ public class Main {
 
     public static void main(String[] args) {
         try {
-            System.out.println("=== GenreDAO ===");
-            GenreDAO genreDAO = new GenreDAO();
+            System.out.println("=== Flyway migrate ===");
+            new MigrationRunner().migrate();
 
-            Genre western = genreDAO.create("Western");
-            System.out.println("Created:              " + western);
+            System.out.println("\n=== CSV import ===");
+            URL csvDir = Main.class.getClassLoader().getResource("sample_data");
+            if (csvDir != null) {
+                File dir = new File(csvDir.toURI());
+                CsvImporter importer = new CsvImporter();
+                CsvImporter.ImportStats stats = importer.importFromDirectory(dir.getAbsolutePath());
+                System.out.println("Imported: " + stats);
+            } else {
+                System.out.println("sample_data/ not on classpath – skipping CSV import");
+            }
 
-            Genre action = genreDAO.findById(1);
-            System.out.println("findById(1):          " + action);
-
-            Genre drama = genreDAO.findByName("Drama");
-            System.out.println("findByName(Drama):    " + drama);
-
-            List<Genre> allGenres = genreDAO.findAll();
-            System.out.println("All genres:           " + allGenres);
-
-            System.out.println("\n=== ActorDAO ===");
-            ActorDAO actorDAO = new ActorDAO();
-
-            Actor newActor = actorDAO.create("Clint Eastwood");
-            System.out.println("Created:              " + newActor);
-
-            Actor found = actorDAO.findById(1);
-            System.out.println("findById(1):          " + found);
-
-            Actor byName = actorDAO.findByName("Marlon Brando");
-            System.out.println("findByName(Brando):   " + byName);
-
-            System.out.println("\n=== MovieDAO ===");
+            System.out.println("\n=== Partition into unrelated-movie lists ===");
             MovieDAO movieDAO = new MovieDAO();
+            List<Movie> allMovies = movieDAO.findAllWithActors();
+            System.out.println("Total movies in DB: " + allMovies.size());
 
-            Movie newMovie = new Movie("The Good, the Bad and the Ugly",
-                    LocalDate.of(1966, 12, 23), 178, 8.8);
-            newMovie.setGenre(western);
-            movieDAO.create(newMovie);
-            System.out.println("Created:              " + newMovie);
+            UnrelatedMoviesPartitioner partitioner = new UnrelatedMoviesPartitioner();
+            List<List<Movie>> partitions = partitioner.partition(allMovies);
+            System.out.println("Number of lists (as small as possible): " + partitions.size());
 
-            Movie movieById = movieDAO.findById(1);
-            System.out.println("findById(1):          " + movieById);
+            MovieListDAO movieListDAO = new MovieListDAO();
+            for (int i = 0; i < partitions.size(); i++) {
+                List<Movie> bucket = partitions.get(i);
+                MovieList stored = movieListDAO.create("Unrelated Set #" + (i + 1));
+                for (Movie m : bucket) {
+                    movieListDAO.addMovieToList(stored.getId(), m.getId());
+                }
+                System.out.println("  List " + (i + 1) + " (size " + bucket.size() + "): "
+                        + bucket.stream().map(Movie::getTitle).toList());
+            }
 
-            List<Movie> sciFiMovies = movieDAO.findByGenre(5);
-            System.out.println("Sci-Fi movies:        " + sciFiMovies);
-
-            System.out.println("\n=== MovieActorDAO ===");
-            MovieActorDAO movieActorDAO = new MovieActorDAO();
-
-            movieActorDAO.addActorToMovie(newMovie.getId(), newActor.getId());
-            System.out.println("Linked actor " + newActor.getId()
-                    + " to movie " + newMovie.getId());
-
-            List<Actor> castOfNew = movieActorDAO.findActorsByMovie(newMovie.getId());
-            System.out.println("Cast of new movie:    " + castOfNew);
-
-            List<Actor> castPF = movieActorDAO.findActorsByMovie(6);
-            System.out.println("Cast of Pulp Fiction: " + castPF);
+            System.out.println("\n=== Stored movie lists ===");
+            for (MovieList list : movieListDAO.findAll()) {
+                System.out.println("  " + list);
+            }
 
             System.out.println("\n=== HTML Report ===");
-            ReportGenerator reportGenerator = new ReportGenerator();
-            reportGenerator.generate("movie_report.html");
+            new ReportGenerator().generate("movie_report.html");
 
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());

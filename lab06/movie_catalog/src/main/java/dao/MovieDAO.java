@@ -86,6 +86,15 @@ public class MovieDAO {
         return movies;
     }
 
+    public List<Movie> findAllWithActors() throws SQLException {
+        List<Movie> movies = findAll();
+        MovieActorDAO movieActorDAO = new MovieActorDAO();
+        for (Movie m : movies) {
+            m.setActors(movieActorDAO.findActorsByMovie(m.getId()));
+        }
+        return movies;
+    }
+
     private Movie mapRow(ResultSet rs) throws SQLException {
         Movie movie = new Movie();
         movie.setId(rs.getInt("id"));

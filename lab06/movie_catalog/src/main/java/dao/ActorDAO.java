@@ -10,12 +10,15 @@ import java.util.List;
 public class ActorDAO {
 
     public Actor create(String name) throws SQLException {
-        String sql = "INSERT INTO actors (name) VALUES (?)";
+        String sql = "INSERT INTO actors (name) VALUES (?) ON CONFLICT (name) DO NOTHING";
         try (Connection conn = Database.getInstance().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, name);
-            stmt.executeUpdate();
+            int affected = stmt.executeUpdate();
 
+            if (affected == 0) {
+                return findByName(name);
+            }
             try (ResultSet keys = stmt.getGeneratedKeys()) {
                 if (keys.next()) {
                     return new Actor(keys.getInt(1), name);
