@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: movie-catalog-client
+  main:
+    web-application-type: none
+
+movieapi:
+  base-url: http://localhost:8080
+
+logging:
+  level:
+    root: INFO
+    com.isari.movieclient: INFO
