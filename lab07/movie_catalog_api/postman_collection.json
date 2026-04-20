@@ -1,0 +1,318 @@
+{
+  "info": {
+    "name": "Movie Catalog",
+    "description": "Lab 07",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Movies",
+      "item": [
+        {
+          "name": "List movies (COMPULSORY)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/movies",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "movies"]
+            }
+          }
+        },
+        {
+          "name": "List movies by genre",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/movies?genreId=2",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "movies"],
+              "query": [
+                { "key": "genreId", "value": "2" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Search movies by title",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/movies?title=dark",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "movies"],
+              "query": [
+                { "key": "title", "value": "dark" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get movie by id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/movies/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "movies", "1"]
+            }
+          }
+        },
+        {
+          "name": "Create movie",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Fight Club\",\n  \"releaseDate\": \"1999-10-15\",\n  \"duration\": 139,\n  \"score\": 8.8,\n  \"genreId\": 2,\n  \"actorIds\": [1]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/movies",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "movies"]
+            }
+          }
+        },
+        {
+          "name": "Update movie",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Inception (Director's Cut)\",\n  \"releaseDate\": \"2010-07-16\",\n  \"duration\": 148,\n  \"score\": 8.9,\n  \"genreId\": 5,\n  \"actorIds\": [1]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/movies/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "movies", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete movie",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/movies/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "movies", "1"]
+            }
+          }
+        },
+        {
+          "name": "Link actor to movie",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/movies/1/actors/2",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "movies", "1", "actors", "2"]
+            }
+          }
+        },
+        {
+          "name": "Unlink actor from movie",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/movies/1/actors/2",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "movies", "1", "actors", "2"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Genres",
+      "item": [
+        {
+          "name": "List genres",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/genres",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "genres"]
+            }
+          }
+        },
+        {
+          "name": "Get genre by id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/genres/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "genres", "1"]
+            }
+          }
+        },
+        {
+          "name": "Create genre",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Western\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/genres",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "genres"]
+            }
+          }
+        },
+        {
+          "name": "Update genre",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Neo-Western\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/genres/7",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "genres", "7"]
+            }
+          }
+        },
+        {
+          "name": "Delete genre",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/genres/7",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "genres", "7"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Actors",
+      "item": [
+        {
+          "name": "List actors",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/actors",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "actors"]
+            }
+          }
+        },
+        {
+          "name": "Get actor by id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/actors/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "actors", "1"]
+            }
+          }
+        },
+        {
+          "name": "Create actor",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Clint Eastwood\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/actors",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "actors"]
+            }
+          }
+        },
+        {
+          "name": "Update actor",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Clinton Eastwood Jr.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/actors/8",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "actors", "8"]
+            }
+          }
+        },
+        {
+          "name": "Delete actor",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/actors/8",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "actors", "8"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reports",
+      "item": [
+        {
+          "name": "Movie report (flat view)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/reports/movies",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reports", "movies"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
