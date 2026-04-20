@@ -2,6 +2,7 @@ package com.isari.moviecatalog.web;
 
 import com.isari.moviecatalog.dto.MovieReportDto;
 import com.isari.moviecatalog.service.MovieReportService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -10,13 +11,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/reports")
+@RequiredArgsConstructor
 public class MovieReportController {
 
     private final MovieReportService reportService;
-
-    public MovieReportController(MovieReportService reportService) {
-        this.reportService = reportService;
-    }
 
     @GetMapping("/movies")
     public List<MovieReportDto> movies() {

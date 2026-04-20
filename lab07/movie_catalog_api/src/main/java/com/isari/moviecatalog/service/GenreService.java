@@ -5,6 +5,7 @@ import com.isari.moviecatalog.dto.GenreDto;
 import com.isari.moviecatalog.dto.GenreRequest;
 import com.isari.moviecatalog.repository.GenreRepository;
 import com.isari.moviecatalog.web.error.NotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,13 +13,10 @@ import java.util.List;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class GenreService {
 
     private final GenreRepository genreRepository;
-
-    public GenreService(GenreRepository genreRepository) {
-        this.genreRepository = genreRepository;
-    }
 
     @Transactional(readOnly = true)
     public List<GenreDto> findAll() {
@@ -44,7 +42,6 @@ public class GenreService {
         Genre genre = genreRepository.findById(id)
                 .orElseThrow(() -> NotFoundException.of("Genre", id));
         genre.setName(request.name());
-
         return toDto(genre);
     }
 

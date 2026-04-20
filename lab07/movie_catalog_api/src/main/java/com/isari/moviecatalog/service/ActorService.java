@@ -5,6 +5,7 @@ import com.isari.moviecatalog.dto.ActorDto;
 import com.isari.moviecatalog.dto.ActorRequest;
 import com.isari.moviecatalog.repository.ActorRepository;
 import com.isari.moviecatalog.web.error.NotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,13 +13,10 @@ import java.util.List;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class ActorService {
 
     private final ActorRepository actorRepository;
-
-    public ActorService(ActorRepository actorRepository) {
-        this.actorRepository = actorRepository;
-    }
 
     @Transactional(readOnly = true)
     public List<ActorDto> findAll() {

@@ -3,6 +3,8 @@ package com.isari.moviecatalog.domain;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Immutable;
 import org.hibernate.annotations.Subselect;
 import org.hibernate.annotations.Synchronize;
@@ -13,6 +15,8 @@ import java.time.LocalDate;
 @Immutable
 @Subselect("SELECT * FROM movie_report")
 @Synchronize({"movies", "genres", "actors", "movie_actors"})
+@Getter
+@NoArgsConstructor
 public class MovieReport {
 
     @Id
@@ -31,32 +35,4 @@ public class MovieReport {
     private String genre;
 
     private String actors;
-
-    public Integer getMovieId() {
-        return movieId;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public LocalDate getReleaseDate() {
-        return releaseDate;
-    }
-
-    public Integer getDuration() {
-        return duration;
-    }
-
-    public Double getScore() {
-        return score;
-    }
-
-    public String getGenre() {
-        return genre;
-    }
-
-    public String getActors() {
-        return actors;
-    }
 }
