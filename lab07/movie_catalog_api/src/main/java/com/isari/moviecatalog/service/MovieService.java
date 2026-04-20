@@ -139,4 +139,11 @@ public class MovieService {
                 actorDtos
         );
     }
+
+    public MovieDto updateScore(Integer id, Double score) {
+        Movie movie = movieRepository.findById(id)
+                .orElseThrow(() -> NotFoundException.of("Movie", id));
+        movie.setScore(score);
+        return toDto(movie);
+    }
 }

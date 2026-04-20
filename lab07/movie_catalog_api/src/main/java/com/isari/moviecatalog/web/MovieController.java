@@ -2,7 +2,9 @@ package com.isari.moviecatalog.web;
 
 import com.isari.moviecatalog.dto.MovieDto;
 import com.isari.moviecatalog.dto.MovieRequest;
+import com.isari.moviecatalog.dto.ScoreUpdateRequest;
 import com.isari.moviecatalog.service.MovieService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,6 +17,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/movies")
 @RequiredArgsConstructor
+@Tag(name = "Movies", description = "CRUD operations for movies")
 public class MovieController {
 
     private final MovieService movieService;
@@ -47,6 +50,12 @@ public class MovieController {
     @PutMapping("/{id}")
     public MovieDto update(@PathVariable Integer id, @Valid @RequestBody MovieRequest request) {
         return movieService.update(id, request);
+    }
+
+    @PatchMapping("/{id}/score")
+    public MovieDto updateScore(@PathVariable Integer id,
+                                @Valid @RequestBody ScoreUpdateRequest request) {
+        return movieService.updateScore(id, request.score());
     }
 
     @DeleteMapping("/{id}")

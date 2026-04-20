@@ -3,6 +3,7 @@ package com.isari.moviecatalog.web;
 import com.isari.moviecatalog.dto.ActorDto;
 import com.isari.moviecatalog.dto.ActorRequest;
 import com.isari.moviecatalog.service.ActorService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,6 +16,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/actors")
 @RequiredArgsConstructor
+@Tag(name = "Actors", description = "CRUD operations for actors")
 public class ActorController {
 
     private final ActorService actorService;

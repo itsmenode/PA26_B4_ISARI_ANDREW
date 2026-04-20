@@ -3,6 +3,7 @@ package com.isari.moviecatalog.web;
 import com.isari.moviecatalog.dto.GenreDto;
 import com.isari.moviecatalog.dto.GenreRequest;
 import com.isari.moviecatalog.service.GenreService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,6 +16,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/genres")
 @RequiredArgsConstructor
+@Tag(name = "Genres", description = "CRUD operations for genres")
 public class GenreController {
 
     private final GenreService genreService;
