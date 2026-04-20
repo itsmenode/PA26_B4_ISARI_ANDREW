@@ -1,13 +1,15 @@
 package db;
 
 import org.apache.commons.dbcp2.BasicDataSource;
+import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.output.MigrateResult;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 
 public class Database {
 
-    private static final String URL = "jdbc:postgresql://localhost:5432/movies_db";
+    private static final String URL  = "jdbc:postgresql://localhost:5432/movies_db";
     private static final String USER = "postgres";
     private static final String PASS = "0745493242";
 
@@ -27,9 +29,24 @@ public class Database {
         dataSource.setMaxWaitMillis(3000);
 
         System.out.println("Connection pool initialized: " + URL);
+
+        runMigrations();
     }
 
-    public static Database getInstance() {
+    private void runMigrations() {
+        Flyway flyway = Flyway.configure()
+                .dataSource(dataSource)
+                .locations("classpath:db/migration")
+                .baselineOnMigrate(true)
+                .load();
+
+        MigrateResult result = flyway.migrate();
+        System.out.println("Flyway: " + result.migrationsExecuted
+                + " migration(s) applied. Schema version now: "
+                + result.targetSchemaVersion);
+    }
+
+    public static synchronized Database getInstance() {
         if (instance == null) {
             instance = new Database();
         }

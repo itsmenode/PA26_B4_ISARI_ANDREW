@@ -24,7 +24,6 @@ public class Movie {
         this.score = score;
     }
 
-
     public int getId() {
         return id;
     }
