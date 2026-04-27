@@ -1,20 +1,21 @@
 package com.example.maze.model;
 
 import lombok.Getter;
+import lombok.Setter;
 
-/**
- * Rectangular grid of {@link Cell}s.
- *
- * <p>Maintains the invariant that shared walls between adjacent cells
- * are always in sync: removing the right wall of (r,c) also removes
- * the left wall of (r,c+1), and vice versa.</p>
- */
+import java.io.Serializable;
+
 @Getter
-public class Maze {
+public class Maze implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private final int rows;
     private final int cols;
     private final Cell[][] grid;
+
+    @Setter private Cell startCell;
+    @Setter private Cell endCell;
 
     public Maze(int rows, int cols) {
         if (rows <= 0 || cols <= 0) {
@@ -26,7 +27,6 @@ public class Maze {
         resetAllWalls();
     }
 
-    /** Restore every wall of every cell. */
     public void resetAllWalls() {
         for (int r = 0; r < rows; r++) {
             for (int c = 0; c < cols; c++) {
@@ -42,29 +42,46 @@ public class Maze {
         return grid[row][col];
     }
 
-    /**
-     * Remove the wall shared by two orthogonally adjacent cells.
-     * Both cells have their corresponding wall flipped off, keeping
-     * the representation consistent.
-     *
-     * @throws IllegalArgumentException if the cells are not orthogonal neighbours
-     */
     public void removeWallBetween(Cell a, Cell b) {
+        setSharedWall(a, b, false);
+    }
+
+    public void toggleWall(Cell cell, Direction side) {
+        Cell neighbour = neighbourOf(cell, side);
+        if (neighbour == null) {
+            return;
+        }
+        boolean newValue = !cell.hasWall(side);
+        setSharedWall(cell, neighbour, newValue);
+    }
+
+    private Cell neighbourOf(Cell cell, Direction side) {
+        int r = cell.getRow();
+        int c = cell.getCol();
+        return switch (side) {
+            case TOP    -> r > 0          ? grid[r - 1][c] : null;
+            case BOTTOM -> r < rows - 1   ? grid[r + 1][c] : null;
+            case LEFT   -> c > 0          ? grid[r][c - 1] : null;
+            case RIGHT  -> c < cols - 1   ? grid[r][c + 1] : null;
+        };
+    }
+
+    private void setSharedWall(Cell a, Cell b, boolean present) {
         int dr = b.getRow() - a.getRow();
         int dc = b.getCol() - a.getCol();
 
-        if (dr == -1 && dc == 0) {          // b is above a
-            a.setTopWall(false);
-            b.setBottomWall(false);
-        } else if (dr == 1 && dc == 0) {    // b is below a
-            a.setBottomWall(false);
-            b.setTopWall(false);
-        } else if (dr == 0 && dc == -1) {   // b is left of a
-            a.setLeftWall(false);
-            b.setRightWall(false);
-        } else if (dr == 0 && dc == 1) {    // b is right of a
-            a.setRightWall(false);
-            b.setLeftWall(false);
+        if (dr == -1 && dc == 0) {
+            a.setTopWall(present);
+            b.setBottomWall(present);
+        } else if (dr == 1 && dc == 0) {
+            a.setBottomWall(present);
+            b.setTopWall(present);
+        } else if (dr == 0 && dc == -1) {
+            a.setLeftWall(present);
+            b.setRightWall(present);
+        } else if (dr == 0 && dc == 1) {
+            a.setRightWall(present);
+            b.setLeftWall(present);
         } else {
             throw new IllegalArgumentException(
                     "Cells " + a + " and " + b + " are not orthogonally adjacent");
