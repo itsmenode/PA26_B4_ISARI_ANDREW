@@ -8,11 +8,6 @@ import org.example.bunny.model.Cell;
 
 import java.util.Random;
 
-/**
- * Base class for anything that lives in the maze and moves on its own
- * thread. Subclasses implement {@link #step()} which is invoked in a loop
- * until the game ends.
- */
 public abstract class Entity implements Runnable {
 
     @Getter protected final String name;

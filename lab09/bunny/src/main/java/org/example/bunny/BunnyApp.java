@@ -124,7 +124,6 @@ public class BunnyApp {
         }
     }
 
-    /** Simple --key=value argument parser. */
     private record Settings(int rows,
                             int cols,
                             int robots,

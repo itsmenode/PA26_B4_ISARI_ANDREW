@@ -6,10 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Shared blackboard the robots use to coordinate. Every read/write is
- * synchronized so writes from one robot thread are visible to the others.
- */
 public class SharedMemory {
 
     public record Sighting(Cell cell, long timestampMs, String observer) {}

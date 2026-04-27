@@ -12,12 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-/**
- * Tracks which entity occupies each cell. All occupancy reads and writes go
- * through synchronized methods, so two entity threads cannot race onto the
- * same cell. A single intrinsic lock keeps the protocol simple and
- * deadlock-free since no nested locks are ever taken.
- */
 @RequiredArgsConstructor
 public class Board {
 

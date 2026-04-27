@@ -10,16 +10,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-/**
- * Read-only BFS over the maze graph (cells connected when there is no wall
- * between them). Cells and walls are immutable for the lifetime of a game,
- * so calling this from any thread without synchronization is safe.
- */
 public final class Pathfinder {
 
     private Pathfinder() {}
 
-    /** First step on a shortest path from {@code from} to {@code to}, or empty if unreachable. */
     public static Optional<Direction> nextStep(Maze maze, Cell from, Cell to) {
         if (from == null || to == null || from.equals(to)) {
             return Optional.empty();

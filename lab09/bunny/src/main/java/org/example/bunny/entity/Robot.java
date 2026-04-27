@@ -73,7 +73,6 @@ public class Robot extends Entity {
         }
     }
 
-    /** Performs a BFS through open corridors up to {@link #visionRange} steps. */
     private void scanForBunny(Cell origin) {
         if (visionRange <= 0) return;
         Map<Cell, Integer> dist = new HashMap<>();
