@@ -9,11 +9,6 @@ import java.util.Deque;
 import java.util.List;
 import java.util.Random;
 
-/**
- * Recursive backtracking (DFS) generator. Produces a perfect maze: the
- * graph induced by missing walls is a spanning tree of the grid, so
- * every pair of cells is joined by a unique simple path.
- */
 public class DfsGenerator implements MazeGenerator {
 
     private static final int[][] DIRECTIONS = {

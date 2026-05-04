@@ -18,8 +18,8 @@ import lombok.Getter;
 @Getter
 public class ConfigPanel extends HBox {
 
-    private static final double MIN_SPEED_LOG = 0.0;   // 10^0   = 1 step/s
-    private static final double MAX_SPEED_LOG = 4.0;   // 10^4   = 10 000 steps/s
+    private static final double MIN_SPEED_LOG = 0.0;
+    private static final double MAX_SPEED_LOG = 4.0;
 
     private final TextField rowsField;
     private final TextField colsField;
@@ -112,7 +112,6 @@ public class ConfigPanel extends HBox {
         return instantCheckBox.isSelected();
     }
 
-    /** Animation rate, in generator steps per second, mapped logarithmically. */
     public double getStepsPerSecond() {
         return Math.pow(10.0, speedSlider.getValue());
     }

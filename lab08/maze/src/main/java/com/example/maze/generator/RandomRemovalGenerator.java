@@ -5,12 +5,6 @@ import com.example.maze.model.Maze;
 
 import java.util.Random;
 
-/**
- * Stochastic generator: walks the grid in row-major order and tosses a
- * biased coin for each east/south wall. NOT a perfect maze in general
- * (it can leave isolated regions or create cycles); kept for comparison
- * with the DFS generator.
- */
 public class RandomRemovalGenerator implements MazeGenerator {
 
     private final double removalProbability;

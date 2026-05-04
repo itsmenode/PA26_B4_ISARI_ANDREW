@@ -7,20 +7,6 @@ import com.example.maze.model.Maze;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
-/**
- * Proves whether the graph induced by the maze (cells = vertices,
- * removed walls = edges) is a spanning tree of the grid.
- *
- * <p>A maze with N cells is a "perfect maze" iff:
- * <ul>
- *   <li>it is <b>connected</b> &mdash; every cell is reachable from any
- *       other (no isolated areas), and</li>
- *   <li>it is <b>acyclic</b> &mdash; given connectivity, this is
- *       equivalent to having exactly {@code N - 1} edges.</li>
- * </ul>
- * Together these two facts force a unique simple path between every
- * pair of cells, which is the standard tree property.
- */
 public final class MazeValidator {
 
     public record Result(
@@ -56,10 +42,6 @@ public final class MazeValidator {
         int reachable = bfsReachable(maze);
 
         boolean connected = (reachable == n);
-        // For a connected graph on N vertices: tree  iff  |E| = N - 1.
-        // For a graph with N - 1 edges: tree  iff  connected.
-        // We test both connectivity and the edge count, which together
-        // imply the spanning-tree property.
         boolean acyclic = connected && (edges == n - 1);
         boolean perfect = connected && acyclic;
 
@@ -70,7 +52,6 @@ public final class MazeValidator {
         int rows = maze.getRows();
         int cols = maze.getCols();
         int edges = 0;
-        // Each undirected edge counted once: only east + south of (r, c).
         for (int r = 0; r < rows; r++) {
             for (int c = 0; c < cols; c++) {
                 Cell cell = maze.getCell(r, c);
