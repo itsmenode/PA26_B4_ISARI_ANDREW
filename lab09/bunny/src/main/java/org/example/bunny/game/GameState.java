@@ -11,7 +11,9 @@ public class GameState {
     public enum Outcome {
         ONGOING("game in progress"),
         BUNNY_ESCAPED("bunny reached the exit"),
-        BUNNY_CAUGHT("a robot caught the bunny");
+        BUNNY_CAUGHT("a robot caught the bunny"),
+        TIMEOUT("time limit exceeded"),
+        STOPPED("stopped by user");
 
         private final String message;
     }

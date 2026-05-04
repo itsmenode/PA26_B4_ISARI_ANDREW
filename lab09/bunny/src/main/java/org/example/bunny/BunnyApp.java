@@ -4,12 +4,15 @@ import org.example.bunny.entity.Bunny;
 import org.example.bunny.entity.Entity;
 import org.example.bunny.entity.Robot;
 import org.example.bunny.game.Board;
+import org.example.bunny.game.GameManager;
 import org.example.bunny.game.GameState;
 import org.example.bunny.game.SharedMemory;
+import org.example.bunny.game.SpeedController;
 import org.example.bunny.generator.DfsGenerator;
 import org.example.bunny.generator.MazeGenerator;
 import org.example.bunny.model.Cell;
 import org.example.bunny.model.Maze;
+import org.example.bunny.ui.CommandConsole;
 import org.example.bunny.ui.TextRenderer;
 
 import java.util.ArrayList;
@@ -34,13 +37,14 @@ public class BunnyApp {
         Board board = new Board(maze);
         SharedMemory memory = new SharedMemory();
         GameState state = new GameState();
+        SpeedController speed = new SpeedController();
 
         List<Cell> available = listAvailableCells(maze, exit);
         Collections.shuffle(available, random);
 
         Bunny bunny = new Bunny(
                 "bunny", board, state, cfg.bunnyDelayMs, exit,
-                cfg.bunnySmartProbability, new Random(random.nextLong()));
+                cfg.bunnySmartProbability, new Random(random.nextLong()), speed);
         if (!board.place(bunny, available.remove(0))) {
             throw new IllegalStateException("Failed to place bunny");
         }
@@ -48,7 +52,7 @@ public class BunnyApp {
         List<Robot> robots = new ArrayList<>();
         for (int i = 0; i < cfg.robots; i++) {
             Robot.Strategy strategy =
-                    (i % 2 == 0) ? Robot.Strategy.HUNTER : Robot.Strategy.RANDOM;
+                    (i % 2 == 0) ? Robot.Strategy.HUNTER : Robot.Strategy.EXPLORER;
             char display = (char) ('0' + i);
             Robot robot = Robot.builder()
                     .name("robot-" + i + "(" + strategy + ")")
@@ -61,6 +65,7 @@ public class BunnyApp {
                     .visionRange(cfg.visionRange)
                     .sightingTtlMs(cfg.sightingTtlMs)
                     .display(display)
+                    .speed(speed)
                     .build();
             if (!board.place(robot, available.remove(0))) {
                 throw new IllegalStateException("Failed to place " + robot.getName());
@@ -68,34 +73,38 @@ public class BunnyApp {
             robots.add(robot);
         }
 
-        TextRenderer renderer = new TextRenderer(board, state, memory, exit, cfg.useAnsiClear);
+        TextRenderer renderer = new TextRenderer(
+                board, state, memory, speed, exit, cfg.useAnsiClear);
 
-        List<Thread> threads = new ArrayList<>();
-        threads.add(startThread(bunny, "bunny"));
+        List<Thread> entityThreads = new ArrayList<>();
+        entityThreads.add(startEntity(bunny, "bunny"));
         for (Robot r : robots) {
-            threads.add(startThread(r, r.getName()));
+            entityThreads.add(startEntity(r, r.getName()));
         }
 
-        long startMs = System.currentTimeMillis();
-        while (!state.isOver()
-                && (cfg.timeoutMs <= 0 || System.currentTimeMillis() - startMs < cfg.timeoutMs)) {
-            renderer.render();
-            Thread.sleep(cfg.renderIntervalMs);
+        GameManager manager = new GameManager(renderer, state, cfg.timeoutMs, cfg.renderIntervalMs);
+        Thread managerThread = new Thread(manager, "game-manager");
+        managerThread.setDaemon(true);
+        managerThread.start();
+
+        CommandConsole console = new CommandConsole(speed, state, bunny.getName(), robots);
+        Thread consoleThread = new Thread(console, "console");
+        consoleThread.setDaemon(true);
+        consoleThread.start();
+
+        while (!state.isOver()) {
+            Thread.sleep(100);
         }
 
-        if (!state.isOver()) {
-            state.tryEnd(GameState.Outcome.ONGOING, "timeout", null);
-            System.out.println("Timed out before either side won.");
-        }
+        for (Thread t : entityThreads) t.interrupt();
+        for (Thread t : entityThreads) t.join();
+        managerThread.interrupt();
+        managerThread.join();
 
-        for (Thread t : threads) t.interrupt();
-        for (Thread t : threads) t.join();
-
-        renderer.render();
         printOutcome(state, bunny, robots);
     }
 
-    private static Thread startThread(Entity entity, String name) {
+    private static Thread startEntity(Entity entity, String name) {
         Thread t = new Thread(entity, name);
         t.setDaemon(true);
         t.start();

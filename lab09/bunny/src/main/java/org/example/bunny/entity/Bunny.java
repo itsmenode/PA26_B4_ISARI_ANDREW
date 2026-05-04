@@ -3,6 +3,7 @@ package org.example.bunny.entity;
 import org.example.bunny.game.Board;
 import org.example.bunny.game.GameState;
 import org.example.bunny.game.MoveResult;
+import org.example.bunny.game.SpeedController;
 import org.example.bunny.model.Cell;
 import org.example.bunny.model.Direction;
 import org.example.bunny.util.Pathfinder;
@@ -23,8 +24,9 @@ public class Bunny extends Entity {
                  long stepDelayMs,
                  Cell exit,
                  double smartProbability,
-                 Random random) {
-        super(name, board, gameState, stepDelayMs, random);
+                 Random random,
+                 SpeedController speed) {
+        super(name, board, gameState, stepDelayMs, random, speed);
         this.exit = exit;
         this.smartProbability = smartProbability;
     }
