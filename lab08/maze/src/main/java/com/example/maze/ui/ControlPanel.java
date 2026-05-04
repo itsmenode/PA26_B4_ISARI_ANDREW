@@ -12,6 +12,7 @@ import lombok.Getter;
 public class ControlPanel extends HBox {
 
     private final Button createButton;
+    private final Button skipButton;
     private final Button resetButton;
     private final Button validateButton;
     private final Button exportPngButton;
@@ -25,6 +26,8 @@ public class ControlPanel extends HBox {
         setAlignment(Pos.CENTER);
 
         createButton = new Button("Create");
+        skipButton = new Button("Skip");
+        skipButton.setDisable(true);
         resetButton = new Button("Reset");
         validateButton = new Button("Validate");
         exportPngButton = new Button("Export PNG");
@@ -33,13 +36,13 @@ public class ControlPanel extends HBox {
         exitButton = new Button("Exit");
 
         for (Button b : new Button[]{
-                createButton, resetButton, validateButton,
+                createButton, skipButton, resetButton, validateButton,
                 exportPngButton, saveButton, loadButton, exitButton}) {
             b.setMinWidth(90);
         }
 
         getChildren().addAll(
-                createButton, resetButton,
+                createButton, skipButton, resetButton,
                 new Separator(Orientation.VERTICAL),
                 validateButton, exportPngButton,
                 new Separator(Orientation.VERTICAL),

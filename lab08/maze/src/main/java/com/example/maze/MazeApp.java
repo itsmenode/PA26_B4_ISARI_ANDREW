@@ -6,9 +6,11 @@ import com.example.maze.generator.RandomRemovalGenerator;
 import com.example.maze.model.Cell;
 import com.example.maze.model.Maze;
 import com.example.maze.solver.MazeSolver;
+import com.example.maze.solver.MazeValidator;
 import com.example.maze.ui.ConfigPanel;
 import com.example.maze.ui.ControlPanel;
 import com.example.maze.ui.MazeCanvas;
+import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
@@ -42,6 +44,9 @@ public class MazeApp extends Application {
     private ControlPanel controlPanel;
     private Stage stage;
 
+    private MazeGenerator runningGenerator;
+    private AnimationTimer animationTimer;
+
     @Override
     public void start(Stage stage) {
         this.stage = stage;
@@ -64,7 +69,7 @@ public class MazeApp extends Application {
 
         wireHandlers();
 
-        Scene scene = new Scene(root, 960, 720);
+        Scene scene = new Scene(root, 1080, 720);
         stage.setTitle("Maze Builder");
         stage.setScene(scene);
         stage.setMinWidth(720);
@@ -75,6 +80,7 @@ public class MazeApp extends Application {
     private void wireHandlers() {
         configPanel.getDrawButton().setOnAction(e -> onDrawGrid());
         controlPanel.getCreateButton().setOnAction(e -> onCreate());
+        controlPanel.getSkipButton().setOnAction(e -> onSkip());
         controlPanel.getResetButton().setOnAction(e -> onReset());
         controlPanel.getValidateButton().setOnAction(e -> onValidate());
         controlPanel.getExportPngButton().setOnAction(e -> onExportPng());
@@ -84,6 +90,7 @@ public class MazeApp extends Application {
     }
 
     private void onDrawGrid() {
+        if (animationTimer != null) return;
         int rows, cols;
         try {
             rows = configPanel.parseRows();
@@ -101,18 +108,92 @@ public class MazeApp extends Application {
     }
 
     private void onCreate() {
+        if (animationTimer != null) return;
         if (maze == null) {
             showError("Draw the grid first.");
             return;
         }
+
         MazeGenerator generator = configPanel.isRandomModeSelected()
                 ? new RandomRemovalGenerator(configPanel.getRemovalProbability())
                 : new DfsGenerator();
-        generator.generate(maze);
+
+        generator.init(maze);
+
+        if (configPanel.isInstantSelected()) {
+            while (!generator.isDone()) generator.step();
+            canvas.setActiveCell(null);
+            canvas.redraw();
+            return;
+        }
+
+        runningGenerator = generator;
+        setAnimating(true);
+
+        animationTimer = new AnimationTimer() {
+            private long lastNanos;
+            private double accumulator;
+
+            @Override
+            public void handle(long now) {
+                if (lastNanos == 0L) {
+                    lastNanos = now;
+                    return;
+                }
+                double dt = (now - lastNanos) / 1e9;
+                lastNanos = now;
+
+                double sps = configPanel.getStepsPerSecond();
+                accumulator += dt * sps;
+
+                int stepsThisFrame = (int) accumulator;
+                if (stepsThisFrame > 0) {
+                    accumulator -= stepsThisFrame;
+                    for (int i = 0; i < stepsThisFrame && !generator.isDone(); i++) {
+                        generator.step();
+                    }
+                    canvas.setActiveCell(generator.getActiveCell());
+                    canvas.redraw();
+                }
+
+                if (generator.isDone()) {
+                    finishAnimation();
+                }
+            }
+        };
+        animationTimer.start();
+    }
+
+    private void onSkip() {
+        if (animationTimer == null || runningGenerator == null) return;
+        while (!runningGenerator.isDone()) runningGenerator.step();
+        finishAnimation();
+    }
+
+    private void finishAnimation() {
+        if (animationTimer != null) {
+            animationTimer.stop();
+            animationTimer = null;
+        }
+        runningGenerator = null;
+        canvas.setActiveCell(null);
         canvas.redraw();
+        setAnimating(false);
+    }
+
+    private void setAnimating(boolean animating) {
+        controlPanel.getCreateButton().setDisable(animating);
+        controlPanel.getResetButton().setDisable(animating);
+        controlPanel.getValidateButton().setDisable(animating);
+        controlPanel.getExportPngButton().setDisable(animating);
+        controlPanel.getSaveButton().setDisable(animating);
+        controlPanel.getLoadButton().setDisable(animating);
+        configPanel.getDrawButton().setDisable(animating);
+        controlPanel.getSkipButton().setDisable(!animating);
     }
 
     private void onReset() {
+        if (animationTimer != null) return;
         if (maze == null) {
             return;
         }
@@ -121,27 +202,36 @@ public class MazeApp extends Application {
     }
 
     private void onValidate() {
+        if (animationTimer != null) return;
         if (maze == null) {
             showError("Draw the grid first.");
             return;
         }
+
+        MazeValidator.Result result = MazeValidator.validate(maze);
+        StringBuilder msg = new StringBuilder(result.describe());
+
         Cell start = maze.getStartCell();
         Cell end = maze.getEndCell();
-        if (start == null || end == null) {
-            showError("Pick a start cell (Shift-click) and an end cell (Ctrl-click) first.");
-            return;
-        }
-        List<Cell> path = MazeSolver.shortestPath(maze, start, end);
-        if (path.isEmpty()) {
-            canvas.clearPath();
-            showInfo("Maze is NOT traversable from start to end.");
+        if (start != null && end != null) {
+            List<Cell> path = MazeSolver.shortestPath(maze, start, end);
+            msg.append(System.lineSeparator()).append(System.lineSeparator());
+            if (path.isEmpty()) {
+                canvas.clearPath();
+                msg.append("No path between selected start and end cells.");
+            } else {
+                canvas.setPath(path);
+                msg.append("Path length from start to end: ").append(path.size()).append(" cells.");
+            }
         } else {
-            canvas.setPath(path);
-            showInfo("Maze is traversable. Path length: " + path.size() + " cells.");
+            msg.append(System.lineSeparator()).append(System.lineSeparator())
+               .append("Tip: shift-click to set the start cell, ctrl-click to set the end cell.");
         }
+        showInfo(msg.toString());
     }
 
     private void onExportPng() {
+        if (animationTimer != null) return;
         if (maze == null) {
             showError("Nothing to export — draw the grid first.");
             return;
@@ -165,6 +255,7 @@ public class MazeApp extends Application {
     }
 
     private void onSave() {
+        if (animationTimer != null) return;
         if (maze == null) {
             showError("Nothing to save — draw the grid first.");
             return;
@@ -186,6 +277,7 @@ public class MazeApp extends Application {
     }
 
     private void onLoad() {
+        if (animationTimer != null) return;
         FileChooser chooser = new FileChooser();
         chooser.setTitle("Load maze");
         chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Serialized maze", "*.ser"));

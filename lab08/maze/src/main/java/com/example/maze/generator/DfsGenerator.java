@@ -9,6 +9,11 @@ import java.util.Deque;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * Recursive backtracking (DFS) generator. Produces a perfect maze: the
+ * graph induced by missing walls is a spanning tree of the grid, so
+ * every pair of cells is joined by a unique simple path.
+ */
 public class DfsGenerator implements MazeGenerator {
 
     private static final int[][] DIRECTIONS = {
@@ -16,6 +21,11 @@ public class DfsGenerator implements MazeGenerator {
     };
 
     private final Random random;
+
+    private Maze maze;
+    private boolean[][] visited;
+    private Deque<Cell> stack;
+    private final List<Cell> scratch = new ArrayList<>(4);
 
     public DfsGenerator() {
         this(new Random());
@@ -26,40 +36,49 @@ public class DfsGenerator implements MazeGenerator {
     }
 
     @Override
-    public void generate(Maze maze) {
+    public void init(Maze maze) {
+        this.maze = maze;
         maze.resetAllWalls();
-        int rows = maze.getRows();
-        int cols = maze.getCols();
-
-        boolean[][] visited = new boolean[rows][cols];
-        Deque<Cell> stack = new ArrayDeque<>();
-
+        visited = new boolean[maze.getRows()][maze.getCols()];
+        stack = new ArrayDeque<>();
         Cell start = maze.getCell(0, 0);
         visited[0][0] = true;
         stack.push(start);
+    }
 
-        List<Cell> unvisitedNeighbours = new ArrayList<>(4);
+    @Override
+    public void step() {
+        if (isDone()) return;
 
-        while (!stack.isEmpty()) {
-            Cell current = stack.peek();
-            unvisitedNeighbours.clear();
-
-            for (int[] d : DIRECTIONS) {
-                int nr = current.getRow() + d[0];
-                int nc = current.getCol() + d[1];
-                if (nr >= 0 && nr < rows && nc >= 0 && nc < cols && !visited[nr][nc]) {
-                    unvisitedNeighbours.add(maze.getCell(nr, nc));
-                }
-            }
-
-            if (unvisitedNeighbours.isEmpty()) {
-                stack.pop();
-            } else {
-                Cell next = unvisitedNeighbours.get(random.nextInt(unvisitedNeighbours.size()));
-                maze.removeWallBetween(current, next);
-                visited[next.getRow()][next.getCol()] = true;
-                stack.push(next);
+        Cell current = stack.peek();
+        scratch.clear();
+        for (int[] d : DIRECTIONS) {
+            int nr = current.getRow() + d[0];
+            int nc = current.getCol() + d[1];
+            if (nr >= 0 && nr < maze.getRows()
+                    && nc >= 0 && nc < maze.getCols()
+                    && !visited[nr][nc]) {
+                scratch.add(maze.getCell(nr, nc));
             }
         }
+
+        if (scratch.isEmpty()) {
+            stack.pop();
+        } else {
+            Cell next = scratch.get(random.nextInt(scratch.size()));
+            maze.removeWallBetween(current, next);
+            visited[next.getRow()][next.getCol()] = true;
+            stack.push(next);
+        }
+    }
+
+    @Override
+    public boolean isDone() {
+        return stack == null || stack.isEmpty();
+    }
+
+    @Override
+    public Cell getActiveCell() {
+        return (stack == null || stack.isEmpty()) ? null : stack.peek();
     }
 }

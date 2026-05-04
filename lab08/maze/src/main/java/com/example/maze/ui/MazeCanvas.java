@@ -16,6 +16,7 @@ public class MazeCanvas extends Canvas {
 
     private Maze maze;
     private List<Cell> path = List.of();
+    private Cell activeCell;
 
     @Setter private Color cellColor = Color.web("#E8F1FA");
     @Setter private Color wallColor = Color.web("#1F3B5B");
@@ -23,6 +24,7 @@ public class MazeCanvas extends Canvas {
     @Setter private Color startColor = Color.web("#2E8B57");
     @Setter private Color endColor = Color.web("#C0392B");
     @Setter private Color pathColor = Color.web("#F1C40F");
+    @Setter private Color activeColor = Color.web("#E67E22");
     @Setter private double wallThickness = 2.0;
     @Setter private double padding = 12.0;
 
@@ -41,6 +43,7 @@ public class MazeCanvas extends Canvas {
     public void setMaze(Maze maze) {
         this.maze = maze;
         this.path = List.of();
+        this.activeCell = null;
         redraw();
     }
 
@@ -55,6 +58,10 @@ public class MazeCanvas extends Canvas {
 
     public void clearPath() {
         setPath(List.of());
+    }
+
+    public void setActiveCell(Cell cell) {
+        this.activeCell = cell;
     }
 
     @Override
@@ -158,6 +165,13 @@ public class MazeCanvas extends Canvas {
                 double y = offsetY + cell.getRow() * cellSize;
                 gc.fillRect(x, y, cellSize, cellSize);
             }
+        }
+
+        if (activeCell != null) {
+            double x = offsetX + activeCell.getCol() * cellSize;
+            double y = offsetY + activeCell.getRow() * cellSize;
+            gc.setFill(activeColor);
+            gc.fillRect(x, y, cellSize, cellSize);
         }
 
         drawMarker(gc, maze.getStartCell(), startColor);
